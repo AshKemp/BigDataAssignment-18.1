@@ -1,0 +1,28 @@
+Step 1: 
+#To create a HBase Table 'customer' with one column family 'details'
+
+hbase> create 'customer','details'
+
+Step 2:
+#Write a shells script that loads the content of the file customers.dat in the HBase table.
+
+To load data do the following:-
+1. put the customer.dat file in HDFS, you may SCP it first to the cluster by using the following command:
+hbase> scp customer.dat root@sandbox.hortonworks.com:/home/hbase
+2. now put in HDFS using the following command
+hbase> hadoop dfs -copyFromLocal customer.dat /tmp
+3. we shall now execute the Loadtsv statement as following:
+hbase> hbase org.apache.hadoop.hbase.mapreduce.ImportTsv -Dimporttsv.separator=,  -Dimporttsv.columns="HBASE_ROW_KEY,id,temp:in,temp:out,vibration,pressure:in,pressure:out" sensor hdfs://sandbox.hortonworks.com:/tmp/customer.dat
+4. once the mapreduce job is completed, return back to hbase shell and execute
+hbase> scan sensor
+5. You should now see the data in the table.
+
+#Pig script
+raw_data = LOAD 'hdfs:/user/training/customers' USING PigStorage(',') AS (
+           id:int,
+           name:chararray,
+           location: chararray,
+           age: int
+);
+
+dump raw_data;
